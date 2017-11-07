@@ -2,8 +2,14 @@
 # -*- coding: utf-8 -*- 
 
 from enum import Enum
+from io import StringIO
+import json
+import uuid
 import requests
 from setting import GRAFANA_INFO
+
+
+API_TOKEN=None
 
 
 class NoValue(Enum):
@@ -46,11 +52,24 @@ def create_admin_api_token(cookies, key_name, role=KeyRole.VIEWER.value):
     return (r.status_code, r.text)
 
 
-if __name__ == '__main__':
-    # cookies = get_cookies('admin', 'password')
+def get_api_token(cookies):
+    global API_TOKEN
+    if API_TOKEN is None:
+        print("API_TOKEN is None")
+        result = create_admin_api_token(cookies=cookies, key_name=str(uuid.uuid1()), role=KeyRole.ADMIN.value)
+        if result[0] == requests.codes.ok:
+            io = StringIO(result[1])
+            res = json.load(io)
+            API_TOKEN = res.get("key")
+    return API_TOKEN
 
-    # print(KeyRole.VIEWER.value)
-    # import uuid
-    # print(create_admin_api_token(cookies, str(uuid.uuid1()), role=KeyRole.ADMIN.value))
+
+if __name__ == '__main__':
+    cookies = get_cookies('admin', 'password')
+    print(API_TOKEN)
+    get_api_token(cookies)
+    print(API_TOKEN)
+    get_api_token(cookies)
+    print(API_TOKEN)
     pass
 

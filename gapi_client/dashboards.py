@@ -19,22 +19,10 @@ def delete_dashboard(api_token, dashboard_slug):
 
 
 if __name__ == '__main__':
-    from common import get_cookies, create_admin_api_token, KeyRole
+    from common import get_cookies, get_api_token
     cookies = get_cookies('admin', 'password')
 
-    import uuid
-    result = create_admin_api_token(cookies=cookies, key_name=str(uuid.uuid1()), role=KeyRole.ADMIN.value)
-
-    if result[0] == requests.codes.ok:
-        from io import StringIO
-        io = StringIO(result[1])
-        import json
-        res = json.load(io)
-        api_token = res.get("key")
-        print(get_dashboard(api_token, "prometheus-stats"))
-    else:
-        print("error")
-        print(result)
-
+    api_token = get_api_token(cookies=cookies)
+    print(get_dashboard(api_token, "prometheus-stats"))
     pass
 
